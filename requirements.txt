@@ -1,0 +1,10 @@
+fitz
+Flask
+Flask_Migrate
+flask_sqlalchemy
+openai
+python-dotenv
+Requests
+pipreqs
+spacy
+pytest
