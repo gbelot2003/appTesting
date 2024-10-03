@@ -1,11 +1,15 @@
 from flask import Flask
+from app.routes.routes import bp  # Asegúrate de que 'bp' esté importado correctamente
 
-from app.routes import routes
+class FlaskApp:
+    def __init__(self):
+        self.app = Flask(__name__)
+        self.app.config.from_object('config')
 
-def create_app():
-    app = Flask(__name__)
-    app.config.from_object('config')
+        self.register_blueprints()
 
-    app.register_blueprint(routes.bp)
+    def register_blueprints(self):
+        self.app.register_blueprint(bp)
 
-    return app
+    def get_app(self):
+        return self.app
