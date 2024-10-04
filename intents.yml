@@ -1,0 +1,8 @@
+# intents.yml (ejemplo)
+intents:
+  - name: actualizar_direccion
+    description: Intent to update the user's address
+    examples:
+      - "Quiero actualizar mi dirección a {direccion}"
+      - "Mi nueva dirección es {direccion}"
+      - "Cambia mi dirección a {direccion}"

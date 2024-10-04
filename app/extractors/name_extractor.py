@@ -1,4 +1,4 @@
-# src/extractors/name_extractor.py
+# app/extractors/name_extractor.py
 
 import re
 import logging
