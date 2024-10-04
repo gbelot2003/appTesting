@@ -5,9 +5,15 @@ import logging
 
 class DireccionExtractor:
     def __init__(self):
-        # Modificar el patrón para evitar capturar texto adicional
-        # Se añade un patrón para ignorar las palabras iniciales y capturar solo la dirección
-        self.patron_direccion = r"(?:mi dirección es|la dirección es|vivo en|resido en|puedes encontrarme en|me encuentro en|la ubicación es|mi ubicación es|mi dirección actual es|mi nueva dirección es|actualiza mi dirección a|cambia mi dirección a|la dirección actual es)\s*([\w\s\d,]+)"
+        # Modificar los patrones para capturar direcciones completas con componentes opcionales como estado y país
+        self.patrones_direccion = [
+            # Patrón extendido para capturar dirección completa con ciudad, estado y país opcionales
+            r"(\d+\s[\w\s]+,\s*[\w\s]+(?:,\s*[\w\s]+){0,3})",  # 14350 Culebra Rd, San Antonio, TX 78253, United States
+            # Patrón para capturar dirección con número de calle y nombre de calle
+            r"(\d+\s[\w\s]+,\s*[\w\s]+)",  # 1234 Calle Principal, Springfield
+            # Patrón para capturar dirección con número de calle solamente
+            r"(\d+\s[\w\s]+)"  # 1234 Calle Principal
+        ]
 
     def extraer_direccion(self, texto):
         """
@@ -15,10 +21,11 @@ class DireccionExtractor:
         Retorna None si no encuentra una dirección válida.
         """
         texto = texto.lower()  # Convertir a minúsculas para coincidencias insensibles a mayúsculas/minúsculas
-        resultado = re.findall(self.patron_direccion, texto)
-        if resultado:
-            logging.debug(f"Dirección encontrada: {resultado[0]}")
-            return resultado[0].strip().capitalize()  # Limpiar y capitalizar la dirección encontrada
+        for patron in self.patrones_direccion:
+            resultado = re.findall(patron, texto)
+            if resultado:
+                logging.debug(f"Dirección encontrada con el patrón: {patron}")
+                return resultado[0].strip().capitalize()  # Limpiar y capitalizar la dirección encontrada
         return None
 
     def extraer_todas_las_direcciones(self, texto):
@@ -27,6 +34,10 @@ class DireccionExtractor:
         Retorna una lista de direcciones o una lista vacía si no encuentra ninguna.
         """
         texto = texto.lower()  # Convertir a minúsculas para coincidencias insensibles a mayúsculas/minúsculas
-        direcciones = re.findall(self.patron_direccion, texto)
-        logging.debug(f"Direcciones encontradas: {direcciones}")
-        return [direccion.strip().capitalize() for direccion in direcciones] if direcciones else []
+        direcciones = []
+        for patron in self.patrones_direccion:
+            resultado = re.findall(patron, texto)
+            if resultado:
+                logging.debug(f"Direcciones encontradas con el patrón: {patron}: {resultado}")
+                direcciones.extend([direccion.strip().capitalize() for direccion in resultado])
+        return direcciones if direcciones else []
