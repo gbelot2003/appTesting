@@ -1,16 +1,20 @@
 # File path: app/actions/address_action.py
 
-from app.extractors.lat_long_extractor import LatLongExtractor
 from app.extractors.address_extractor import DireccionExtractor
 from app.repos.contact_repo import ContactRepo
-from app.models import Address
+from app.models.address_model import Address
+from app.extractors.lat_long_extractor import LatLongExtractor
 import logging
 
 class AddressAction:
-    def __init__(self, contacto, prompt):
+    def __init__(self, contacto, prompt, db_session):
+        """
+        Inicializa AddressAction con la información necesaria.
+        """
         self.contacto = contacto
         self.prompt = prompt
-        self.lat_long_extractor = LatLongExtractor()  # Inicializa el extractor de latitud y longitud
+        self.db_session = db_session
+        self.lat_long_extractor = LatLongExtractor()
 
     def process_address(self):
         """
@@ -18,6 +22,11 @@ class AddressAction:
         """
         message = None
         logging.info("Iniciando AddressAction con prompt: %s", self.prompt)
+
+        # Si el contacto ya tiene una dirección registrada, retornar mensaje con la dirección existente
+        if self.contacto.direccion:
+            direccion_formateada = self.contacto.direccion.lower()
+            return {"role": "assistant", "content": f"El usuario ya tiene una dirección registrada: {direccion_formateada}."}
 
         # Extraer todas las direcciones usando el extractor
         direcciones_extraidas = DireccionExtractor().extraer_todas_las_direcciones(self.prompt)
@@ -31,20 +40,30 @@ class AddressAction:
 
         # Determinar el tipo de dirección (pickup, delivery o principal)
         tipo_direccion = self.determinar_tipo_direccion()
-        
+
         # Si es una dirección de recogida, extraer latitud y longitud
         if tipo_direccion == "pickup":
             latitud, longitud = self.lat_long_extractor.obtener_lat_long(direccion_principal)
             nueva_direccion = Address(
-                contact_id=self.contacto.id, type=tipo_direccion, address_line=direccion_principal,
-                latitude=latitud, longitude=longitud, is_primary=False
+                contact_id=self.contacto.id,
+                type=tipo_direccion,
+                address_line=direccion_principal,
+                latitude=latitud,
+                longitude=longitud,
+                is_primary=False
             )
-            ContactRepo().agregar_direccion(nueva_direccion)
+            # Llamar a agregar_direccion con db_session
+            ContactRepo.agregar_direccion(self.db_session, nueva_direccion)
             message = {"role": "assistant", "content": f"Se ha registrado la dirección de recogida: {direccion_principal} con latitud: {latitud} y longitud: {longitud}."}
         else:
             # Direcciones de entrega o principales no necesitan latitud y longitud
-            nueva_direccion = Address(contact_id=self.contacto.id, type=tipo_direccion, address_line=direccion_principal, is_primary=False)
-            ContactRepo().agregar_direccion(nueva_direccion)
+            nueva_direccion = Address(
+                contact_id=self.contacto.id,
+                type=tipo_direccion,
+                address_line=direccion_principal,
+                is_primary=False
+            )
+            ContactRepo.agregar_direccion(self.db_session, nueva_direccion)
             message = {"role": "assistant", "content": f"Se ha registrado la dirección de {tipo_direccion}: {direccion_principal}."}
 
         # Si se detectan múltiples direcciones, agregarlas al mensaje
