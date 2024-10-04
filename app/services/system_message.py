@@ -10,7 +10,6 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 class SystemMessage:
     def handle_request(self, prompt, user_id):
-        print(f"Usuario: {prompt}")
         try:
             # Definir el prompt del usuario
             messages = []

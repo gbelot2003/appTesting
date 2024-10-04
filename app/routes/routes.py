@@ -14,7 +14,6 @@ def simulate_twilio():
     data = request.json
     message_body = data.get('message', 'Este es un mensaje simulado desde Twilio')
     from_number = data.get('from_number', '+14155551234')
-    print("llega1")
 
     response = OpenAIService().handle_request(message_body, from_number)
 
