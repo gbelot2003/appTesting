@@ -1,5 +1,4 @@
 # tests/test_update_address_action.py
-
 import pytest
 from unittest.mock import patch, MagicMock
 from app.actions.update_address_action import UpdateAddressAction
@@ -8,7 +7,6 @@ from app.models.contact_model import Contact
 from extensions import db
 from flask import Flask
 from app.routes.routes import bp
-
 
 @pytest.fixture
 def client():
@@ -34,7 +32,6 @@ def client():
     with app.app_context():
         db.drop_all()
 
-
 @pytest.fixture
 def contacto_existente(client):
     """Fixture para crear un contacto en la base de datos antes del test."""
@@ -48,7 +45,6 @@ def contacto_existente(client):
         db.session.refresh(nuevo_contacto)  # Refrescar la instancia dentro de la sesión
 
     yield nuevo_contacto
-
 
 def test_verificar_contacto_existente(contacto_existente, client):
     """Test para verificar que el contacto fue creado correctamente en la base de datos."""
@@ -71,7 +67,6 @@ def test_verificar_contacto_existente(contacto_existente, client):
         assert (
             contacto.direccion == "Calle Falsa 123"
         ), f"Se esperaba la dirección 'Calle Falsa 123', pero se encontró: {contacto.direccion}"
-
 
 def test_update_address_success(contacto_existente, client):
     """Test para verificar que se actualiza la dirección correctamente."""
@@ -118,7 +113,6 @@ def test_update_address_success(contacto_existente, client):
                     == "Dirección actualizada a: 1234 Calle Principal, Ciudad"
                 )
 
-
 def test_update_address_contact_not_found(client):
     """Test para verificar que UpdateAddressAction devuelve error cuando no se encuentra el contacto."""
     # Mock del extractor de direcciones usando el path correcto
@@ -159,7 +153,6 @@ def test_update_address_contact_not_found(client):
                 mock_repo_instance.obtener_contacto_por_telefono.assert_called_once_with(
                     "+14155551234"
                 )
-
 
 def test_update_address_invalid_address():
     # Mock del extractor de direcciones para que no encuentre ninguna dirección válida

@@ -1,5 +1,3 @@
-# app/actions/update_address_action.py
-
 from app.repos.contact_repo import ContactRepo
 from app.extractors.address_extractor import DireccionExtractor
 
