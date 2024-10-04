@@ -22,10 +22,12 @@ jobs:
         node-version: '16'
 
     - name: Install dependencies
-      run: npm install
+      run: |
+        if [ -f package.json ]; then npm install; fi
 
     - name: Run tests
-      run: npm test
+      run: |
+        if [ -f package.json ]; then npm test; fi
 
     - name: Set up Python
       uses: actions/setup-python@v4
