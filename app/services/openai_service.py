@@ -1,32 +1,19 @@
-import os
-from openai import OpenAI
-from dotenv import load_dotenv
+# src/services/openai_service.py
 
-load_dotenv(override=True)
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+from app.services.system_message import SystemMessage
 
 class OpenAIService:
 
     def __init__(self):
         pass
 
-    def handle_request(self, prompt):
-        print(f"Usuario: {prompt}")
-
+    def handle_request(self, prompt, from_number):
+        # Definir el prompt del usuario
         try:
-            # Definir el prompt del usuario
-            messages = []
-
-            # Agregar el mensaje actual del usuario
-            messages.append({"role": "user", "content": prompt})
+            # Imprimir el prompt del usuario
+            print(f"Usuario: {prompt}")
             
-            # Enviar los mensajes a la API de OpenAI
-            response = client.chat.completions.create(
-                model="gpt-3.5-turbo", messages=messages, max_tokens=100, temperature=0.2
-            )
-
-            # Obtener la respuesta generada por el modelo
-            respuesta_modelo = response.choices[0].message.content.strip()
+            respuesta_modelo = SystemMessage().handle_request(prompt, from_number)
 
             # Imprimir la respuesta generada por el modelo
             print(f"GPT: {respuesta_modelo}")
