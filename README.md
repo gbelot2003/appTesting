@@ -68,10 +68,12 @@ jobs:
         node-version: '16'
 
     - name: Install dependencies
-      run: npm install
+      run: |
+        if [ -f package.json ]; then npm install; fi
 
     - name: Run tests
-      run: npm test
+      run: |
+        if [ -f package.json ]; then npm test; fi
 
     - name: Set up Python
       uses: actions/setup-python@v4
@@ -82,7 +84,12 @@ jobs:
       run: |
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
+    - name: Set environment variables
+      run: echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> $GITHUB_ENV
+
     - name: Run Python tests
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: |
         if [ -f requirements.txt ]; then pytest; fi
 ```
