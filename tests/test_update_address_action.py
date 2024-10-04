@@ -107,7 +107,7 @@ def test_update_address_contact_not_found(client):
                     # Crear la acción con datos de prueba
                     action = UpdateAddressAction(
                         telefono="+14155551234",
-                        texto="Quiero cambiar mi dirección a 1234 Calle Principal, Ciudad",
+                        texto="Quiero cambiar mi dirección a 1234 Calle Principal, San Antonio",
                     )
 
                     # Imprimir información del mock antes de ejecutar
