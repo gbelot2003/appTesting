@@ -4,6 +4,7 @@ import pytest
 from unittest.mock import patch, MagicMock
 from app.services.action_handler_service import ActionHandleService
 from app.repos.contact_repo import ContactRepo
+import logging
 
 @pytest.fixture
 def mock_contact():
@@ -14,9 +15,10 @@ def mock_contact():
     contact.direccion = None  # El contacto no tiene una dirección inicial
     return contact
 
-def test_handle_actions_actualizar_direccion(mock_contact, mocker):
-    """Probar que se actualiza la dirección en la base de datos correctamente."""
-    
+def test_handle_actions_actualizar_direccion_explicitamente(mock_contact, mocker, caplog):
+    """Probar que se actualiza la dirección cuando el usuario lo solicita explícitamente."""
+    caplog.set_level(logging.INFO)  # Habilitar captura de logs
+
     # Mockear VerifyContactAction para que devuelva un contacto simulado
     mock_verify_contact = mocker.patch('app.actions.verify_contact_action.VerifyContactAction.verificar_contacto', return_value=mock_contact)
 
@@ -29,15 +31,15 @@ def test_handle_actions_actualizar_direccion(mock_contact, mocker):
         {"role": "assistant", "content": "Claro, ¿cuál es la nueva dirección?"}
     ])
 
-    # Mockear `DireccionExtractor` para simular la extracción de la dirección
+    # Mockear `DireccionExtractor` para simular la extracción de la nueva dirección
     mock_direccion_extractor = mocker.patch('app.extractors.address_extractor.DireccionExtractor.extraer_todas_las_direcciones', return_value=["5678 calle secundaria, ciudad"])
 
-    # Mockear el método `actualizar_contacto` de `ContactRepo` para verificar que se llama correctamente
+    # Mockear el método `actualizar_contacto` de `ContactRepo`
     mock_update_contact = mocker.patch.object(ContactRepo, 'actualizar_contacto')
 
-    # Instanciar ActionHandleService con user_id y prompt
+    # Instanciar ActionHandleService con un `prompt` explícito para actualizar la dirección
     user_id = "123-456-7890"
-    prompt = "La nueva dirección es 5678 Calle Secundaria, Ciudad."
+    prompt = "Quiero actualizar mi dirección a 5678 Calle Secundaria, Ciudad."
     action_service = ActionHandleService(user_id, prompt)
 
     # Ejecutar handle_actions
@@ -47,11 +49,9 @@ def test_handle_actions_actualizar_direccion(mock_contact, mocker):
     mock_verify_contact.assert_called_once_with(user_id)
     mock_name_action.assert_called_once()
     mock_conversation_action.assert_called_once_with(user_id)
-
-    # Verificar que `DireccionExtractor.extraer_todas_las_direcciones` fue llamado
     mock_direccion_extractor.assert_called_once()
 
-    # Verificar que ContactRepo.actualizar_contacto fue llamado con el ID del contacto y la nueva dirección
+    # Verificar que ContactRepo.actualizar_contacto fue llamado correctamente con la nueva dirección
     mock_update_contact.assert_called_once_with(mock_contact.id, direccion="5678 calle secundaria, ciudad")
 
     # Verificar que los mensajes generados se almacenan correctamente
@@ -60,3 +60,7 @@ def test_handle_actions_actualizar_direccion(mock_contact, mocker):
     assert messages[1]["content"] == "Hola, ¿puedes actualizar mi dirección?"
     assert messages[2]["content"] == "Claro, ¿cuál es la nueva dirección?"
     assert messages[3]["content"] == "La dirección del usuario es: 5678 calle secundaria, ciudad."
+
+    # Verificar los logs capturados
+    assert "Intentando extraer direcciones del prompt..." in caplog.text
+    assert "Direcciones extraídas: ['5678 calle secundaria, ciudad']" in caplog.text
