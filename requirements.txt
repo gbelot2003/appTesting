@@ -8,3 +8,4 @@ Requests
 pipreqs
 spacy
 pytest
+pytest-mock
