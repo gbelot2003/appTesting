@@ -3,18 +3,19 @@
 import pytest
 from unittest.mock import patch, MagicMock
 from app.services.action_handler_service import ActionHandleService
+from app.repos.contact_repo import ContactRepo
 
 @pytest.fixture
 def mock_contact():
     """Mock para un contacto básico."""
     contact = MagicMock()
+    contact.id = 1
     contact.nombre = "Juan Pérez"
-    contact.direccion = "1234 Calle Principal, Springfield"
-    contact.telefono = "123-456-7890"
+    contact.direccion = None  # El contacto no tiene una dirección inicial
     return contact
 
-def test_handle_actions(mock_contact, mocker):
-    """Prueba unitaria para ActionHandleService.handle_actions."""
+def test_handle_actions_actualizar_direccion(mock_contact, mocker):
+    """Probar que se actualiza la dirección en la base de datos correctamente."""
     
     # Mockear VerifyContactAction para que devuelva un contacto simulado
     mock_verify_contact = mocker.patch('app.actions.verify_contact_action.VerifyContactAction.verificar_contacto', return_value=mock_contact)
@@ -28,8 +29,11 @@ def test_handle_actions(mock_contact, mocker):
         {"role": "assistant", "content": "Claro, ¿cuál es la nueva dirección?"}
     ])
 
-    # Mockear AddressAction para verificar la actualización de la dirección y el mensaje generado
-    mock_address_action = mocker.patch('app.actions.address_action.AddressAction.process_address', return_value={"role": "assistant", "content": "La dirección del usuario es: 5678 calle secundaria, ciudad."})
+    # Mockear `DireccionExtractor` para simular la extracción de la dirección
+    mock_direccion_extractor = mocker.patch('app.extractors.address_extractor.DireccionExtractor.extraer_todas_las_direcciones', return_value=["5678 calle secundaria, ciudad"])
+
+    # Mockear el método `actualizar_contacto` de `ContactRepo` para verificar que se llama correctamente
+    mock_update_contact = mocker.patch.object(ContactRepo, 'actualizar_contacto')
 
     # Instanciar ActionHandleService con user_id y prompt
     user_id = "123-456-7890"
@@ -40,10 +44,15 @@ def test_handle_actions(mock_contact, mocker):
     messages = action_service.handle_actions()
 
     # Verificar que las acciones secundarias fueron llamadas
-    mock_verify_contact.assert_called_once_with(user_id)  # Utilizar el mock retornado en lugar de la clase directamente
+    mock_verify_contact.assert_called_once_with(user_id)
     mock_name_action.assert_called_once()
     mock_conversation_action.assert_called_once_with(user_id)
-    mock_address_action.assert_called_once()
+
+    # Verificar que `DireccionExtractor.extraer_todas_las_direcciones` fue llamado
+    mock_direccion_extractor.assert_called_once()
+
+    # Verificar que ContactRepo.actualizar_contacto fue llamado con el ID del contacto y la nueva dirección
+    mock_update_contact.assert_called_once_with(mock_contact.id, direccion="5678 calle secundaria, ciudad")
 
     # Verificar que los mensajes generados se almacenan correctamente
     assert len(messages) == 4
