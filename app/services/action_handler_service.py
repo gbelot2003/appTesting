@@ -13,6 +13,7 @@ class ActionHandleService:
 
     def handle_intent(self, intent, entities):
         if intent == "actualizar_direccion":
+            print('Actualizando la dirección...')
             # Obtener el número de teléfono y la nueva dirección de las entidades
             telefono = entities.get("telefono")
             nueva_direccion = entities.get("direccion")
