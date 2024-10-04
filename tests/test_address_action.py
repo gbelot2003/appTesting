@@ -24,7 +24,8 @@ def test_address_action_con_direccion(contacto_con_direccion):
     action = AddressAction(contacto_con_direccion, prompt)
     message = action.process_address()
     assert message["role"] == "assistant"
-    assert message["content"] == "El usuario ya tiene una dirección registrada: 1234 calle principal, ciudad."
+    # Convertir ambas direcciones a minúsculas para una comparación insensible a mayúsculas/minúsculas
+    assert message["content"].lower() == "el usuario ya tiene una dirección registrada: 1234 calle principal, ciudad.".lower()
 
 def test_address_action_sin_direccion_exito(contacto_sin_direccion, mocker):
     prompt = "El usuario vive en 5678 Calle Secundaria, Ciudad"

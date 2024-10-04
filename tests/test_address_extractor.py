@@ -16,4 +16,4 @@ def test_direccion_extractor():
 
     for texto, direccion_esperada in ejemplos:
         direccion_extraida = extractor.extraer_direccion(texto)
-        assert direccion_extraida.lower() == direccion_esperada  # Comparar en minúsculas
+        assert direccion_extraida.lower() == direccion_esperada  # Comparar en minúsculas para asegurar igualdad
