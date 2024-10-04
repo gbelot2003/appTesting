@@ -1,5 +1,6 @@
 # app/services/action_handler_service.py
 
+from app.actions.conversation_history_action import ConversationHistoryAction
 from app.actions.name_action import NameAction
 from app.actions.verify_contact_action import VerifyContactAction
 
@@ -18,5 +19,11 @@ class ActionHandleService:
         name_message = name_action.process_name()
         if name_message:
             self.messages.append(name_message)
+
+         # Buscar historial de conversación
+        conversation_history_action = ConversationHistoryAction()
+        chat_history_messages = conversation_history_action.compilar_conversacion(self.user_id)
+        self.messages.extend(chat_history_messages)
+
     
         return self.messages

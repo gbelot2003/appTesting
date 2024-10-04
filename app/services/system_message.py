@@ -2,6 +2,7 @@
 import os
 from openai import OpenAI
 from dotenv import load_dotenv
+from app.repos.conversation_repo import ConversacionRepo
 from app.services.action_handler_service import ActionHandleService 
 
 load_dotenv(override=True)
@@ -29,6 +30,9 @@ class SystemMessage:
 
             # Obtener la respuesta generada por el modelo
             respuesta_modelo = response.choices[0].message.content.strip()  # type: ignore
+
+            # Guardar la conversión del modelo en la base de datos
+            ConversacionRepo().crear_conversacion(prompt, respuesta_modelo, user_id)
             
             return respuesta_modelo
         except Exception as e:
