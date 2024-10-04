@@ -8,11 +8,10 @@ from app.models.contact_model import Contact
 from extensions import db  # Asumiendo que la extensión de db está correctamente configurada
 from app import create_app
 
-
 @pytest.fixture
 def client():
     # Crear la app y el cliente para pruebas
-    app = create_app()
+    app = create_app()  # Asegúrate de que esta función esté correctamente definida
     app.config['TESTING'] = True
 
     # Limpiar la base de datos antes de cada prueba

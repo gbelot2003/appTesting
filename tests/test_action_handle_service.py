@@ -45,7 +45,7 @@ def test_handle_actions_actualizar_direccion_explicitamente(mock_contact, mocker
     # Mockear `DireccionExtractor` para simular la extracción de la nueva dirección
     mocker.patch('app.extractors.address_extractor.DireccionExtractor.extraer_todas_las_direcciones', return_value=["5678 calle secundaria, ciudad"])
 
-    # Mockear el método `actualizar_contacto` de `ContactRepo`
+    # Asegúrate de que el mock esté usando la ruta completa del método `ContactRepo.actualizar_contacto`
     mock_update_contact = mocker.patch('app.repos.contact_repo.ContactRepo.actualizar_contacto')
 
     # Ejecutar handle_actions
