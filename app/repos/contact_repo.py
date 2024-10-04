@@ -1,6 +1,7 @@
 # src/repos/contact_repo.py
 from extensions import db
 from app.models.contact_model import Contact as Contacto
+from app.models import Address
 
 class ContactRepo:
     @staticmethod
@@ -40,3 +41,19 @@ class ContactRepo:
             db.session.delete(contacto)
             db.session.commit()
         return contacto
+    @staticmethod
+    def agregar_direccion(self, direccion: Address):
+        """
+        Agrega una dirección asociada a un contacto en la base de datos.
+        """
+        self.db.add(direccion)
+        self.db.commit()
+        self.db.refresh(direccion)
+        return direccion
+
+    @staticmethod
+    def obtener_direcciones_contacto(self, contact_id: int):
+        """
+        Obtiene todas las direcciones de un contacto específico.
+        """
+        return self.db.query(Address).filter(Address.contact_id == contact_id).all()

@@ -9,3 +9,4 @@ pipreqs
 spacy
 pytest
 pytest-mock
+geopy

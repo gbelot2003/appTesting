@@ -1,7 +1,7 @@
-# src/models/contact_model.py
+# File path: app/models/contact_model.py
 
 from extensions import db
-
+from app.models.address_model import Address
 
 class Contact(db.Model):
     __tablename__ = 'contacts'
@@ -12,4 +12,5 @@ class Contact(db.Model):
     direccion = db.Column(db.String(255), nullable=True)
     email = db.Column(db.String(255), nullable=True)
 
-    
+    # Relación de uno a muchos con Address
+    addresses = db.relationship("Address", back_populates="contact", cascade="all, delete-orphan")
