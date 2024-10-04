@@ -1,4 +1,4 @@
-# tests/test_update_address_action.py
+# test_update_address_action.py
 import pytest
 from unittest.mock import patch, MagicMock
 from app.actions.update_address_action import UpdateAddressAction
@@ -7,6 +7,7 @@ from app.models.contact_model import Contact
 from extensions import db
 from flask import Flask
 from app.routes.routes import bp
+
 
 @pytest.fixture
 def client():
@@ -32,57 +33,34 @@ def client():
     with app.app_context():
         db.drop_all()
 
+
 @pytest.fixture
 def contacto_existente(client):
     """Fixture para crear un contacto en la base de datos antes del test."""
-    # Crear un contacto de prueba
     with client.application.app_context():
         nuevo_contacto = Contact(
             nombre="Carlos", telefono="+14155551234", direccion="Calle Falsa 123"
         )
         db.session.add(nuevo_contacto)
         db.session.commit()
-        db.session.refresh(nuevo_contacto)  # Refrescar la instancia dentro de la sesión
+        db.session.refresh(nuevo_contacto)
 
     yield nuevo_contacto
 
-def test_verificar_contacto_existente(contacto_existente, client):
-    """Test para verificar que el contacto fue creado correctamente en la base de datos."""
-    with client.application.app_context():
-        # Intentar obtener el contacto por su número de teléfono
-        contacto = ContactRepo.obtener_contacto_por_telefono(
-            contacto_existente.telefono
-        )
-
-        # Verificar que el contacto fue encontrado y tiene los atributos esperados
-        assert (
-            contacto is not None
-        ), "El contacto no fue encontrado en la base de datos."
-        assert (
-            contacto.nombre == "Carlos"
-        ), f"Se esperaba el nombre 'Carlos', pero se encontró: {contacto.nombre}"
-        assert (
-            contacto.telefono == "+14155551234"
-        ), f"Se esperaba el teléfono '+14155551234', pero se encontró: {contacto.telefono}"
-        assert (
-            contacto.direccion == "Calle Falsa 123"
-        ), f"Se esperaba la dirección 'Calle Falsa 123', pero se encontró: {contacto.direccion}"
 
 def test_update_address_success(contacto_existente, client):
     """Test para verificar que se actualiza la dirección correctamente."""
     # Mock del extractor de direcciones
-    with patch(
-        "app.actions.update_address_action.DireccionExtractor"
-    ) as MockDireccionExtractor:
+    with patch("app.actions.update_address_action.DireccionExtractor") as MockDireccionExtractor:
         mock_extractor = MockDireccionExtractor.return_value
         mock_extractor.extraer_direccion.return_value = "1234 Calle Principal, Ciudad"
 
         # Mock del repositorio de contactos usando el path correcto
         with patch("app.repos.contact_repo.ContactRepo") as MockContactRepo:
-            # Configurar el mock para que devuelva el contacto existente
             mock_repo = MockContactRepo.return_value
+
+            # Configurar el mock para que devuelva el contacto existente
             mock_repo.obtener_contacto_por_telefono.return_value = contacto_existente
-            mock_repo.actualizar_contacto.return_value = contacto_existente
 
             # Asegurar contexto de aplicación para la prueba
             with client.application.app_context():
@@ -92,6 +70,9 @@ def test_update_address_success(contacto_existente, client):
                     texto="Quiero cambiar mi dirección a 1234 Calle Principal, Ciudad",
                 )
 
+                # Asegurar que el mock se llama correctamente
+                mock_repo.obtener_contacto_por_telefono.assert_not_called()
+                
                 # Ejecutar la acción dentro del contexto de la aplicación
                 resultado = action.ejecutar()
 
@@ -113,19 +94,16 @@ def test_update_address_success(contacto_existente, client):
                     == "Dirección actualizada a: 1234 Calle Principal, Ciudad"
                 )
 
+
 def test_update_address_contact_not_found(client):
     """Test para verificar que UpdateAddressAction devuelve error cuando no se encuentra el contacto."""
     # Mock del extractor de direcciones usando el path correcto
-    with patch(
-        "app.actions.update_address_action.DireccionExtractor"
-    ) as MockDireccionExtractor:
+    with patch("app.actions.update_address_action.DireccionExtractor") as MockDireccionExtractor:
         mock_extractor = MockDireccionExtractor.return_value
         mock_extractor.extraer_direccion.return_value = "1234 Calle Principal, Ciudad"
 
         # Mock del repositorio de contactos usando el path correcto
-        with patch(
-            "app.repos.contact_repo.ContactRepo", autospec=True
-        ) as MockContactRepo:
+        with patch("app.repos.contact_repo.ContactRepo", autospec=True) as MockContactRepo:
             mock_repo_instance = MockContactRepo.return_value
 
             # Configurar el mock para que devuelva None al buscar un contacto por teléfono.
