@@ -1,0 +1,108 @@
+/* styles.css */
+
+/* General */
+body, html {
+    height: 100%;
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Asegurar visibilidad del Navbar */
+.navbar.bg-purple {
+    background-color: #6f42c1; /* Color morado */
+    z-index: 10; /* Asegura que esté al frente */
+    position: relative; /* No se superpone con otros elementos */
+}
+
+/* Estilo para elementos del navbar */
+.navbar-brand, .nav-link {
+    color: #ffffff !important;
+}
+
+.nav-link:hover {
+    color: #d1c4e9 !important; /* Color más claro al pasar el mouse */
+}
+
+/* Contenedor principal del chat con mayor ancho */
+.chat-container {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    background-size: cover;
+    background-position: center;
+    border: 1px solid #ddd;
+    padding-bottom: 10px;
+}
+
+/* Barra superior de WhatsApp */
+.whatsapp-header {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Barra inferior de WhatsApp */
+.whatsapp-footer {
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Mensajes de usuario */
+.user-bubble {
+    max-width: 70%; /* Ancho ajustado */
+    margin-left: auto;
+    background-color: #dcf8c6;
+    color: #000;
+    border-bottom-right-radius: 0;
+    border-radius: 8px;
+    position: relative;
+    padding: 10px 15px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.06);
+    text-align: left;
+}
+
+/* Mensajes de otros */
+.other-bubble {
+    max-width: 70%; /* Ancho ajustado */
+    background-color: #fff;
+    color: #000;
+    border-bottom-left-radius: 0;
+    border-radius: 8px;
+    position: relative;
+    padding: 10px 15px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.06);
+    text-align: left;
+}
+
+/* Estilos para la hora de los mensajes */
+.message-time {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    font-size: 0.8em;
+    color: #666;
+    margin-top: 5px;
+}
+
+/* Icono de estado de mensaje */
+.bi-check-lg,
+.bi-check2-all {
+    margin-left: 5px;
+    vertical-align: middle;
+}
+
+/* Animación de entrada de mensajes */
+.message {
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
