@@ -1,25 +1,14 @@
-# app/extractors/address_extractor.py
+# File path: app/extractors/address_extractor.py
 
 import re
 import logging
 
 class DireccionExtractor:
     def __init__(self):
-        # Definir patrones para direcciones comunes
+        # Definir patrones para direcciones comunes, extendiendo para capturar ciudad, estado, y país.
         self.patrones_direccion = [
-            r"mi dirección es\s+([\w\s\d,]+)",  # "Mi dirección es 1234 Calle Principal, Ciudad"
-            r"la dirección es\s+([\w\s\d,]+)",  # "La dirección es 1234 Calle Principal, Ciudad"
-            r"vivo en\s+([\w\s\d,]+)",  # "Vivo en 1234 Calle Principal, Ciudad"
-            r"resido en\s+([\w\s\d,]+)",  # "Resido en 1234 Calle Principal, Ciudad"
-            r"puedes encontrarme en\s+([\w\s\d,]+)",  # "Puedes encontrarme en 1234 Calle Principal, Ciudad"
-            r"me encuentro en\s+([\w\s\d,]+)",  # "Me encuentro en 1234 Calle Principal, Ciudad"
-            r"la ubicación es\s+([\w\s\d,]+)",  # "La ubicación es 1234 Calle Principal, Ciudad"
-            r"mi ubicación es\s+([\w\s\d,]+)",  # "Mi ubicación es 1234 Calle Principal, Ciudad"
-            r"mi dirección actual es\s+([\w\s\d,]+)",  # "Mi dirección actual es 1234 Calle Principal, Ciudad"
-            r"mi nueva dirección es\s+([\w\s\d,]+)",  # "Mi nueva dirección es 1234 Calle Principal, Ciudad"
-            r"actualiza mi dirección a\s+([\w\s\d,]+)",  # "Actualiza mi dirección a 1234 Calle Principal, Ciudad"
-            r"cambia mi dirección a\s+([\w\s\d,]+)",  # "Cambia mi dirección a 1234 Calle Principal, Ciudad"
-            r"la dirección actual es\s+([\w\s\d,]+)",  # "La dirección actual es 1234 Calle Principal, Ciudad"
+            r"(?:mi dirección es|la dirección es|vivo en|resido en|puedes encontrarme en|me encuentro en|la ubicación es|mi ubicación es|mi dirección actual es|mi nueva dirección es|actualiza mi dirección a|cambia mi dirección a|la dirección actual es)\s+([\w\s\d,]+(?:, [\w\s]+){0,3})",  
+            # El patrón permite hasta 3 segmentos adicionales separados por comas (ciudad, estado, país)
         ]
 
     def extraer_direccion(self, texto):
